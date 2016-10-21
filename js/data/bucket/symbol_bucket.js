@@ -286,9 +286,9 @@ class SymbolBucket {
 
         for (const feature of this.features) {
 
-            const shapedTextOrientations = feature.text && {
-                [Shaping.WritingMode.horizantal]: shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.horizantal),
-                [Shaping.WritingMode.vertical]: shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.vertical)
+            let shapedTextOrientations = {
+                [Shaping.WritingMode.horizantal]: feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.horizantal),
+                [Shaping.WritingMode.vertical]: feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.vertical)
             };
 
             let shapedIcon;
@@ -310,7 +310,7 @@ class SymbolBucket {
                 }
             }
 
-            if (shapedTextOrientations || shapedIcon) {
+            if (shapedTextOrientations[Shaping.WritingMode.horizantal] || shapedIcon) {
                 this.addFeature(feature, shapedTextOrientations, shapedIcon);
             }
         }
@@ -382,7 +382,7 @@ class SymbolBucket {
             for (let j = 0, len = anchors.length; j < len; j++) {
                 const anchor = anchors[j];
 
-                if (shapedTextOrientations && isLine) {
+                if (shapedTextOrientations[Shaping.WritingMode.horizantal] && isLine) {
                     if (this.anchorIsTooClose(shapedTextOrientations[Shaping.WritingMode.horizantal].text, textRepeatDistance, anchor)) {
                         continue;
                     }
@@ -651,6 +651,7 @@ class SymbolBucket {
         let glyphQuads = [];
         for (const writingModeString in shapedTextOrientations) {
             const writingMode = parseInt(writingModeString, 10);
+            if (!shapedTextOrientations[writingMode]) continue;
             glyphQuads = glyphQuads.concat(addToBuffers ? getGlyphQuads(anchor, shapedTextOrientations[writingMode], textBoxScale, line, layer, textAlongLine, writingMode) : []);
             textCollisionFeature = new CollisionFeature(collisionBoxArray, line, anchor, featureIndex, sourceLayerIndex, bucketIndex, shapedTextOrientations[writingMode], textBoxScale, textPadding, textAlongLine, false);
         }
