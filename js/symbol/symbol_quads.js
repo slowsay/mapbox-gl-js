@@ -47,7 +47,9 @@ const SymbolQuadsArray = module.exports = new StructArrayType({
 
         // quad is only valid for scales < maxScale && scale > minScale.
         { type: 'Float32', name: 'maxScale' },
-        { type: 'Float32', name: 'minScale' }
+        { type: 'Float32', name: 'minScale' },
+
+        { type: 'Uint8', name: 'writingMode' }
     ]
 });
 
@@ -66,6 +68,7 @@ Object.defineProperty(SymbolQuadsArray.prototype.StructType.prototype, 'SymbolQu
             this.anchorAngle,
             this.glyphAngle,
             this.minScale,
-            this.maxScale);
+            this.maxScale,
+            this.writingMode);
     }
 });
