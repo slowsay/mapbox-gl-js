@@ -1,5 +1,6 @@
 'use strict';
 
+<<<<<<< HEAD
 module.exports.allowsIdeographicBreaking = function(chars) {
     for (const char of chars) {
         if (!exports.charAllowsIdeographicBreaking(char.charCodeAt(0))) {
@@ -52,7 +53,7 @@ module.exports.charAllowsIdeographicBreaking = function(char) {
     return false;
 };
 
-const isVerticalWritingModeRegExp = new RegExp([
+const verticalRegExp = new RegExp([
     '[ᄀ-ᇿ]',
     '[가-힣]',
     '[ㄱ-ㆎ]',
@@ -70,5 +71,5 @@ const isVerticalWritingModeRegExp = new RegExp([
 ].join('|'));
 
 module.exports.allowsVerticalWritingMode = function(input) {
-    return input.search(isVerticalWritingModeRegExp) !== -1;
+    return input.search(verticalRegExp) !== -1;
 };
