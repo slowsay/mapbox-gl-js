@@ -367,7 +367,7 @@ class SymbolBucket {
                     line,
                     symbolMinDistance,
                     textMaxAngle,
-                    shapedTextOrientations[WritingMode.horizantal],
+                    shapedTextOrientations[WritingMode.vertical] || shapedTextOrientations[WritingMode.horizantal],
                     shapedIcon,
                     glyphSize,
                     textMaxBoxScale,
