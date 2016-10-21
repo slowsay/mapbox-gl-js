@@ -22,6 +22,7 @@ const classifyRings = require('../../util/classify_rings');
 
 const shapeText = Shaping.shapeText;
 const shapeIcon = Shaping.shapeIcon;
+const WritingMode = Shaping.WritingMode;
 const getGlyphQuads = Quads.getGlyphQuads;
 const getIconQuads = Quads.getIconQuads;
 
@@ -287,9 +288,11 @@ class SymbolBucket {
 
         for (const feature of this.features) {
 
+            var isTextCJK = feature.text.match(/t/);
+
             let shapedTextOrientations = {
-                [Shaping.WritingMode.horizantal]: feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.horizantal),
-                [Shaping.WritingMode.vertical]: textAlongLine && feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, Shaping.WritingMode.vertical)
+                [WritingMode.horizantal]: feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, WritingMode.horizantal),
+                [WritingMode.vertical]: isTextCJK && textAlongLine && feature.text && shapeText(feature.text, stacks[fontstack], maxWidth, lineHeight, horizontalAlign, verticalAlign, justify, spacing, textOffset, oneEm, WritingMode.vertical)
             };
 
             let shapedIcon;
@@ -311,7 +314,7 @@ class SymbolBucket {
                 }
             }
 
-            if (shapedTextOrientations[Shaping.WritingMode.horizantal] || shapedIcon) {
+            if (shapedTextOrientations[WritingMode.horizantal] || shapedIcon) {
                 this.addFeature(feature, shapedTextOrientations, shapedIcon);
             }
         }
@@ -364,7 +367,7 @@ class SymbolBucket {
                     line,
                     symbolMinDistance,
                     textMaxAngle,
-                    shapedTextOrientations[Shaping.WritingMode.horizantal],
+                    shapedTextOrientations[WritingMode.horizantal],
                     shapedIcon,
                     glyphSize,
                     textMaxBoxScale,
@@ -383,8 +386,8 @@ class SymbolBucket {
             for (let j = 0, len = anchors.length; j < len; j++) {
                 const anchor = anchors[j];
 
-                if (shapedTextOrientations[Shaping.WritingMode.horizantal] && isLine) {
-                    if (this.anchorIsTooClose(shapedTextOrientations[Shaping.WritingMode.horizantal].text, textRepeatDistance, anchor)) {
+                if (shapedTextOrientations[WritingMode.horizantal] && isLine) {
+                    if (this.anchorIsTooClose(shapedTextOrientations[WritingMode.horizantal].text, textRepeatDistance, anchor)) {
                         continue;
                     }
                 }
@@ -530,7 +533,7 @@ class SymbolBucket {
             if (hasText) {
                 collisionTile.insertCollisionFeature(textCollisionFeature, glyphScale, layout['text-ignore-placement']);
                 if (glyphScale <= maxScale) {
-                    this.addSymbols(this.arrays.glyph, symbolInstance.glyphQuadStartIndex, symbolInstance.glyphQuadEndIndex, glyphScale, layout['text-keep-upright'], textAlongLine, collisionTile.angle);
+                    this.addSymbols(this.arrays.glyph, symbolInstance.glyphQuadStartIndex, symbolInstance.glyphQuadEndIndex, glyphScale, layout['text-keep-upright'], textAlongLine, collisionTile.angle, symbolInstance.writingModes);
                 }
             }
 
@@ -546,7 +549,7 @@ class SymbolBucket {
         if (showCollisionBoxes) this.addToDebugBuffers(collisionTile);
     }
 
-    addSymbols(arrays, quadsStart, quadsEnd, scale, keepUpright, alongLine, placementAngle) {
+    addSymbols(arrays, quadsStart, quadsEnd, scale, keepUpright, alongLine, placementAngle, writingModes) {
         const elementArray = arrays.elementArray;
         const layoutVertexArray = arrays.layoutVertexArray;
 
@@ -559,10 +562,14 @@ class SymbolBucket {
 
             // drop incorrectly oriented glyphs
             const a = (symbol.anchorAngle + placementAngle + Math.PI) % (Math.PI * 2);
-            if (alongLine && symbol.writingMode === Shaping.WritingMode.vertical) {
-                if (keepUpright && alongLine && a <= (Math.PI * 5 / 4) || a > (Math.PI * 7 / 4)) continue;
+            if (writingModes & WritingMode.vertical) {
+                if (alongLine && symbol.writingMode === WritingMode.vertical) {
+                    if (keepUpright && alongLine && a <= (Math.PI * 5 / 4) || a > (Math.PI * 7 / 4)) continue;
+                } else {
+                    if (keepUpright && alongLine && a <= (Math.PI * 3 / 4) || a > (Math.PI * 5 / 4)) continue;
+                }
             } else {
-                if (keepUpright && alongLine && a <= (Math.PI * 3 / 4) || a > (Math.PI * 5 / 4)) continue;
+                if (keepUpright && alongLine && (a <= Math.PI / 2 || a > Math.PI * 3 / 2)) continue;
             }
 
             const tl = symbol.tl,
@@ -673,7 +680,7 @@ class SymbolBucket {
         const textBoxEndIndex = textCollisionFeature ? textCollisionFeature.boxEndIndex : this.collisionBoxArray.length;
 
         if (shapedIcon) {
-            iconQuads = addToBuffers ? getIconQuads(anchor, shapedIcon, iconBoxScale, line, layer, iconAlongLine, shapedTextOrientations[Shaping.WritingMode.horizantal], globalProperties, featureProperties) : [];
+            iconQuads = addToBuffers ? getIconQuads(anchor, shapedIcon, iconBoxScale, line, layer, iconAlongLine, shapedTextOrientations[WritingMode.horizantal], globalProperties, featureProperties) : [];
             iconCollisionFeature = new CollisionFeature(collisionBoxArray, line, anchor, featureIndex, sourceLayerIndex, bucketIndex, shapedIcon, iconBoxScale, iconPadding, iconAlongLine, true);
         }
 
@@ -688,6 +695,11 @@ class SymbolBucket {
         if (iconQuadEndIndex > SymbolBucket.MAX_QUADS) util.warnOnce("Too many symbols being rendered in a tile. See https://github.com/mapbox/mapbox-gl-js/issues/2907");
         if (glyphQuadEndIndex > SymbolBucket.MAX_QUADS) util.warnOnce("Too many glyphs being rendered in a tile. See https://github.com/mapbox/mapbox-gl-js/issues/2907");
 
+        const writingModes = (
+            (shapedTextOrientations[WritingMode.vertical] ? WritingMode.vertical : 0) |
+            (shapedTextOrientations[WritingMode.horizantal] ? WritingMode.horizantal : 0)
+        );
+
         return this.symbolInstancesArray.emplaceBack(
             textBoxStartIndex,
             textBoxEndIndex,
@@ -699,7 +711,9 @@ class SymbolBucket {
             iconQuadEndIndex,
             anchor.x,
             anchor.y,
-            index);
+            index,
+            writingModes
+        );
     }
 
     addSymbolQuad(symbolQuad) {

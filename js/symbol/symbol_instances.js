@@ -29,12 +29,13 @@ const SymbolInstancesArray = module.exports = new StructArrayType({
         { type: 'Int16', name: 'anchorPointY' },
 
         // index -- not sure if we need this -@mollymerp
-        { type: 'Int8', name: 'index' }
+        { type: 'Int8', name: 'index' },
+
+        // Bitmask indicating all available writing modes
+        { type: 'Uint8', name: 'writingModes' }
     ]
 });
 
 Object.defineProperty(SymbolInstancesArray.prototype.StructType.prototype, 'anchorPoint', {
     get() { return new Point(this.anchorPointX, this.anchorPointY); }
 });
-
-
