@@ -4,6 +4,7 @@ const VertexArrayType = require('./vertex_array_type');
 const util = require('../util/util');
 const shaders = require('mapbox-gl-shaders');
 const assert = require('assert');
+const browser = require('../util/browser');
 
 /**
  * ProgramConfiguration contains the logic for binding style layer properties and tile
@@ -167,7 +168,7 @@ class ProgramConfiguration {
 
         defines = this.defines.concat(defines);
 
-        let definesSource = '#define MAPBOX_GL_JS;\n';
+        let definesSource = `#define MAPBOX_GL_JS\n#define DEVICE_PIXEL_RATIO ${browser.devicePixelRatio.toFixed(1)}\n`;
         for (let j = 0; j < defines.length; j++) {
             definesSource += `#define ${defines[j]};\n`;
         }
@@ -175,13 +176,13 @@ class ProgramConfiguration {
         const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(fragmentShader, applyPragmas(definesSource + definition.fragmentSource, this.fragmentPragmas));
         gl.compileShader(fragmentShader);
-        assert(gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS), gl.getShaderInfoLog(fragmentShader));
+        assert(gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS), `${name}.fragment.glsl error:\n${gl.getShaderInfoLog(fragmentShader)}`);
         gl.attachShader(program, fragmentShader);
 
         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
         gl.shaderSource(vertexShader, applyPragmas(definesSource + shaders.util + definition.vertexSource, this.vertexPragmas));
         gl.compileShader(vertexShader);
-        assert(gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS), gl.getShaderInfoLog(vertexShader));
+        assert(gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS), `${name}.vertex.glsl error:\n${gl.getShaderInfoLog(vertexShader)}`);
         gl.attachShader(program, vertexShader);
 
         gl.linkProgram(program);

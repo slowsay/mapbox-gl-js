@@ -59,6 +59,51 @@ const lineInterfaces = {
             },
             multiplier: 255,
             paintProperty: 'line-color'
+        }, {
+            name: 'a_blur',
+            components: 1,
+            type: 'Uint8',
+            getValue: function(layer, globalProperties, featureProperties) {
+                return [layer.getPaintValue("line-blur", globalProperties, featureProperties)];
+            },
+            multiplier: 10,
+            paintProperty: 'line-blur'
+        }, {
+            name: 'a_opacity',
+            components: 1,
+            type: 'Uint8',
+            getValue: function(layer, globalProperties, featureProperties) {
+                return [layer.getPaintValue("line-opacity", globalProperties, featureProperties)];
+            },
+            multiplier: 10,
+            paintProperty: 'line-opacity'
+        }, {
+            name: 'a_width',
+            components: 1,
+            type: 'Uint8',
+            getValue: function(layer, globalProperties, featureProperties) {
+                return [layer.getPaintValue("line-width", globalProperties, featureProperties) / 2];
+            },
+            multiplier: 10,
+            paintProperty: 'line-width'
+        }, {
+            name: 'a_gapwidth',
+            components: 1,
+            type: 'Uint8',
+            getValue: function(layer, globalProperties, featureProperties) {
+                return [layer.getPaintValue("line-gap-width", globalProperties, featureProperties) / 2];
+            },
+            multiplier: 10,
+            paintProperty: 'line-gap-width'
+        }, {
+            name: 'a_offset',
+            components: 1,
+            type: 'Uint8',
+            getValue: function(layer, globalProperties, featureProperties) {
+                return [-1 * layer.getPaintValue("line-offset", globalProperties, featureProperties)];
+            },
+            multiplier: 10,
+            paintProperty: 'line-offset'
         }],
         elementArrayType: new ElementArrayType()
     }
