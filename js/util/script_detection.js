@@ -63,7 +63,6 @@ function charAllowsVerticalWritingMode(char) {
     if (isChar['Kangxi Radicals'](char)) return true;
     if (isChar['Katakana Phonetic Extensions'](char)) return true;
     if (isChar['Katakana'](char)) return true;
-    if (isChar['Mongolian'](char)) return true;
 
     if (isCharFullwidthForm(char)) return true;
 
