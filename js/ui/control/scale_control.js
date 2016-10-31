@@ -1,6 +1,5 @@
 'use strict';
 
-const Control = require('./control');
 const DOM = require('../../util/dom');
 
 /**
@@ -17,10 +16,9 @@ const DOM = require('../../util/dom');
  *     unit: 'imperial'
  * }));
  */
-class ScaleControl extends Control {
+class ScaleControl {
 
     constructor(options) {
-        super();
         this._position = options && options.position || 'bottom-left';
     }
 

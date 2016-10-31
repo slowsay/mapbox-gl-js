@@ -212,14 +212,37 @@ class Map extends Camera {
     }
 
     /**
-     * Adds a [`Control`](#Control) to the map, calling `control.addTo(this)`.
+     * Adds a [`Control`](#Control) to the map, calling `control.onAdd(this)`.
      *
      * @param {Control} control The [`Control`](#Control) to add.
      * @returns {Map} `this`
      * @see [Display map navigation controls](https://www.mapbox.com/mapbox-gl-js/example/navigation/)
      */
     addControl(control) {
-        control.addTo(this);
+        control._map = this;
+        const container = control._container = control.onAdd(this);
+        if (control._position) {
+            const corner = this._controlCorners[control._position];
+            container.className += ' mapboxgl-ctrl';
+            if (control._position.indexOf('bottom') !== -1) {
+                corner.insertBefore(container, corner.firstChild);
+            } else {
+                corner.appendChild(container);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Removes the control from the map.
+     *
+     * @param {Control} control The [`Control`](#Control) to add.
+     * @returns {Map} `this`
+     */
+    removeControl(control) {
+        control._container.parentNode.removeChild(control._container);
+        if (control.onRemove) control.onRemove(this);
+        control._map = null;
         return this;
     }
 

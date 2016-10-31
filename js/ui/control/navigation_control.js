@@ -1,6 +1,5 @@
 'use strict';
 
-const Control = require('./control');
 const DOM = require('../../util/dom');
 const window = require('../../util/window');
 
@@ -15,10 +14,9 @@ const window = require('../../util/window');
  * @see [Display map navigation controls](https://www.mapbox.com/mapbox-gl-js/example/navigation/)
  * @see [Add a third party vector tile source](https://www.mapbox.com/mapbox-gl-js/example/third-party/)
  */
-class NavigationControl extends Control {
+class NavigationControl {
 
     constructor(options) {
-        super();
         this._position = options && options.position || 'top-right';
     }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const Control = require('./control');
+const Evented = require('../../util/evented');
 const DOM = require('../../util/dom');
 
 /**
@@ -12,7 +12,7 @@ const DOM = require('../../util/dom');
  * var map = new mapboxgl.Map({attributionControl: false})
  *     .addControl(new mapboxgl.AttributionControl({position: 'top-left'}));
  */
-class AttributionControl extends Control {
+class AttributionControl extends Evented {
 
     constructor(options) {
         super();

@@ -1,6 +1,6 @@
 'use strict';
 
-const Control = require('./control');
+const Evented = require('../../util/evented');
 const browser = require('../../util/browser');
 const DOM = require('../../util/dom');
 const window = require('../../util/window');
@@ -16,7 +16,7 @@ const geoOptions = { enableHighAccuracy: false, timeout: 6000 /* 6sec */ };
  * @example
  * map.addControl(new mapboxgl.GeolocateControl({position: 'top-left'})); // position is optional
  */
-class GeolocateControl extends Control {
+class GeolocateControl extends Evented {
 
     constructor(options) {
         super();
