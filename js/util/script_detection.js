@@ -1,6 +1,5 @@
 'use strict';
 
-<<<<<<< HEAD
 module.exports.allowsIdeographicBreaking = function(chars) {
     for (const char of chars) {
         if (!exports.charAllowsIdeographicBreaking(char.charCodeAt(0))) {
